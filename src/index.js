@@ -1,7 +1,7 @@
 const app = require('./app');
 const pool = require('./config/db');
 const initializeDatabase = require('./config/dbInit');
-
+require('dotenv').config();
 const PORT = process.env.PORT || 5070;
 
 async function startServer() {

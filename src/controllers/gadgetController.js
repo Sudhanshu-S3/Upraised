@@ -3,10 +3,17 @@ const pool = require('../config/db');
 
 const getG = async (req, res) => {
     try {
-        const { rows } = await pool.query('SELECT * FROM gadgets');
+        // Extract status filter if present
+        const filters = {};
+        if (req.query.status) {
+            filters.status = req.query.status;
+        }
+
+        // Use model method instead of direct query
+        const gadgets = await Gadget.findAll(filters);
         res.status(200).json({
             success: true,
-            data: rows,
+            data: gadgets,
         });
     } catch (error) {
         console.error('Error fetching gadgets:', error);
@@ -16,8 +23,9 @@ const getG = async (req, res) => {
         });
     }
 }
-const addG = async (req,res)=>{
-    try{
+
+const addG = async (req, res) => {
+    try {
         const { name, description, price } = req.body;
         const newGadget = await Gadget.create({ name, description, price });
         res.status(201).json({
@@ -33,6 +41,7 @@ const addG = async (req,res)=>{
         });
     }
 }
+
 const updateG = async (req, res) => {
     try {
         const { id } = req.params;
@@ -92,9 +101,12 @@ const genSelfDestructG = async (req, res) => {
         });
     }
 }
+
 const selfDestructG = async (req, res) => {
     try {
         const { id } = req.params;
+        const { code } = req.body;
+
         const gadget = await Gadget.findById(id);
         if (!gadget) {
             return res.status(404).json({
@@ -102,7 +114,9 @@ const selfDestructG = async (req, res) => {
                 message: 'Gadget not found',
             });
         }
-        await Gadget.delete(id);
+
+        // Use triggerSelfDestruct instead of delete
+        await Gadget.triggerSelfDestruct(id, code);
         res.status(200).json({
             success: true,
             message: 'Gadget self-destructed successfully',
@@ -117,10 +131,10 @@ const selfDestructG = async (req, res) => {
 }
 
 module.exports = {
-    getG,
-    addG,
-    updateG,
-    deleteG,
-    selfDestructG,
-    genSelfDestructG
+    getGadgets: getG,
+    addGadget: addG,
+    updateGadget: updateG,
+    deleteGadget: deleteG,
+    selfDestructGadget: selfDestructG,
+    generateSelfDestructCode: genSelfDestructG
 }

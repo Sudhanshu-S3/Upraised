@@ -7,7 +7,7 @@ const app = express();
 
 //Routes
 const gadgetRouter = require('./routes/gadgetRoutes');
-
+const authRouter = require('./routes/authRoutes');
 //Middleware
 app.use(cors());
 app.use(express.json());
@@ -15,7 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 
 //Routes using
 app.use('/api/gadgets', gadgetRouter);
+app.use('/api/auth', authRouter);
 
+//Health check route
 app.get('/', (req, res) => {
     res.json({
         status: 'success',
